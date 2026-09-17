@@ -57,9 +57,9 @@
       "src/lib/auth.ts",
       "src/app/api/auth/[...all]/route.ts",
       "src/app/login/page.tsx",
-      "proxy.ts"
+      "src/proxy.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E1-T3",

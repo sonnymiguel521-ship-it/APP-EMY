@@ -455,8 +455,13 @@ export const pago = pgTable("pago", {
 ```
 
 `src/lib/db/auth-schema.ts` declara las cuatro tablas de arriba con `pgTable`, columnas `text()` y
-`timestamp(..., { withTimezone: true })`, y las FK `user_id` con `onDelete: "cascade"`. La columna
-del breaking change se escribe `providerAccountId: text("provider_account_id").notNull()`.
+`timestamp(..., { withTimezone: true })`, y las FK `user_id` con `onDelete: "cascade"`.
+**VERIFICADO en vivo (2026-09-17), corrige la suposición de §9/§11/§20.2:** el paquete `better-auth`
+1.7.5 realmente resuelto por npm sigue esperando `accountId`, no `providerAccountId` — el build de
+Next lo confirma con "Missing columns: account.accountId" / "Required columns Better Auth never
+writes: account.providerAccountId". La columna se escribe
+`accountId: text("account_id").notNull()`. El rename documentado en el changelog de 1.7.0 no aplica
+a esta resolución del paquete; no fijar `providerAccountId` en el esquema.
 
 ### Migraciones
 
