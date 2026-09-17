@@ -57,7 +57,7 @@ Server Actions en `src/app/(app)/<recurso>/actions.ts`, nunca por un `fetch` des
 | Asunto | Fuente única de verdad |
 |---|---|
 | Esquema de la base | `src/lib/db/schema.ts` — cambia ahí y luego `pnpm db:generate` |
-| Tablas de auth | `src/lib/db/auth-schema.ts` — `account` usa `provider_account_id` |
+| Tablas de auth | `src/lib/db/auth-schema.ts` — `account` usa `account_id` |
 | Acceso a variables | `src/lib/env.ts` — validado con zod; nunca leas `process.env` en otro archivo |
 | Sesión | `src/lib/auth.ts` — un solo `getSesion()`, usado en todas partes |
 | Dinero | `src/lib/dinero.ts` — centavos enteros; `formatearDop(145000)` → `"1450.00"` |

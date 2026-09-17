@@ -90,7 +90,7 @@
       "scripts/seed.ts",
       "tests/db/schema.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E1-T4",
