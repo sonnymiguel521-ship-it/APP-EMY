@@ -247,9 +247,10 @@
       "src/server/pagos.ts",
       "src/app/(app)/ventas/[id]/page.tsx",
       "src/app/(app)/ventas/[id]/actions.ts",
+      "src/app/(app)/ventas/[id]/formulario-pago.tsx",
       "tests/server/pagos.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E2-T3",
