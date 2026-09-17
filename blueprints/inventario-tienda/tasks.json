@@ -279,7 +279,7 @@
       "src/app/(app)/clientes/[id]/page.tsx",
       "tests/server/clientes-perfil.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E2-T4",
