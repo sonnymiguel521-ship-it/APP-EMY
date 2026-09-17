@@ -47,6 +47,10 @@ export default async function PaginaVenta({ params }: PaginaVentaProps) {
     <main className="flex flex-col gap-8 p-8">
       <h1 className="text-2xl font-semibold">Venta</h1>
 
+      <a href={`/api/v1/ventas/${id}/recibo`} className="border rounded px-3 py-2 self-start">
+        Descargar recibo (PDF)
+      </a>
+
       <dl className="flex flex-col gap-1">
         <div>
           <dt className="inline font-medium">Total: </dt>
