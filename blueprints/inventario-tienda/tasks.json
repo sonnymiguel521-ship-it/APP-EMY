@@ -370,7 +370,7 @@
       ".github/workflows/ci.yml",
       "next.config.ts"
     ],
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "id": "E2-T7",

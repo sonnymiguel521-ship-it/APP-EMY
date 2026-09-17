@@ -16,7 +16,21 @@ const schema = z.object({
   PROD_DB_GUARD: z.string().optional(),
 });
 
-const parsed = schema.safeParse(process.env);
+const schemaConProduccion = schema.superRefine((valores, ctx) => {
+  if (process.env.NODE_ENV !== "production") return;
+
+  for (const clave of ["BETTER_AUTH_SECRET", "BETTER_AUTH_URL", "NEXT_PUBLIC_APP_URL"] as const) {
+    if (!valores[clave]) {
+      ctx.addIssue({
+        code: "custom",
+        path: [clave],
+        message: `${clave} no está definida y es obligatoria en producción`,
+      });
+    }
+  }
+});
+
+const parsed = schemaConProduccion.safeParse(process.env);
 
 if (!parsed.success) {
   const mensaje = parsed.error.issues
