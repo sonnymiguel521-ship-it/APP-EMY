@@ -398,8 +398,11 @@
       "tests/e2e/auth.setup.ts",
       "tests/e2e/flujo-critico.spec.ts",
       "tests/e2e/a11y.spec.ts",
-      "scripts/reset-db.ts"
+      "scripts/reset-db.ts",
+      "src/lib/auth.ts",
+      "src/app/login/page.tsx",
+      "src/app/(app)/ventas/nueva/formulario-venta.tsx"
     ],
-    "status": "pending"
+    "status": "done"
   }
 ]

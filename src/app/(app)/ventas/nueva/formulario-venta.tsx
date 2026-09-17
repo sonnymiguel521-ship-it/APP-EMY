@@ -45,6 +45,11 @@ export function FormularioVenta({
   function confirmarVenta() {
     setError(null);
 
+    if (seleccionadas.size === 0) {
+      setError("Selecciona al menos una pieza para crear la venta.");
+      return;
+    }
+
     const lineas = Array.from(seleccionadas).map((unidadId) => ({
       unidadId,
       precioVentaCentavos: precios[unidadId] ?? 0,
@@ -140,7 +145,7 @@ export function FormularioVenta({
       <button
         type="button"
         onClick={confirmarVenta}
-        disabled={pendiente || seleccionadas.size === 0}
+        disabled={pendiente}
         className="border rounded px-3 py-2 self-start"
       >
         {pendiente ? "Creando..." : "Crear venta"}
