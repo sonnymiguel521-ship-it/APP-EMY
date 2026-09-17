@@ -119,9 +119,13 @@
       "src/app/(app)/articulos/actions.ts",
       "src/app/(app)/articulos/page.tsx",
       "src/app/(app)/articulos/[id]/page.tsx",
+      "src/app/(app)/articulos/formulario-articulo.tsx",
+      "src/app/(app)/articulos/formulario-variante.tsx",
+      "src/lib/resultado.ts",
+      "src/lib/dinero.ts",
       "tests/server/articulos.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E1-T5",
