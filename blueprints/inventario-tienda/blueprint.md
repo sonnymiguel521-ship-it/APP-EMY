@@ -1630,6 +1630,10 @@ pnpm dlx shadcn@4.16.0 init --base radix --no-monorepo --preset nova -y
 [ -e .workspace-applied ] || { cp -R blueprints/inventario-tienda/workspace/. ./ && touch .workspace-applied; }
 
 # 11. Formato único para reconciliar el scaffold y los archivos recién copiados con biome.json.
+#     VERIFICADO en vivo (2026-09-17): shadcn y el resto de devDependencies arrastran esbuild como
+#     transitiva, y pnpm vuelve a exigir aprobación de scripts de build justo aquí — `biome check`
+#     invoca el chequeo de pnpm antes de tocar un archivo y sale 1 sin ese segundo `approve-builds`.
+pnpm approve-builds --all
 pnpm exec biome check --write .
 
 # 12. Repositorio y primer commit: §9 etiqueta cada paso y §20.1 cuenta las etiquetas, así que el

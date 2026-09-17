@@ -1,0 +1,28 @@
+import { existsSync } from "node:fs";
+import { z } from "zod";
+
+if (!process.env.DATABASE_URL && existsSync(".env")) {
+  process.loadEnvFile(".env");
+}
+
+const schema = z.object({
+  DATABASE_URL: z.string().min(1, "DATABASE_URL no está definida"),
+  TEST_DATABASE_URL: z.string().optional(),
+  BETTER_AUTH_SECRET: z.string().optional(),
+  BETTER_AUTH_URL: z.string().optional(),
+  NEXT_PUBLIC_APP_URL: z.string().optional(),
+  OWNER_EMAIL: z.string().optional(),
+  OWNER_PASSWORD: z.string().optional(),
+  PROD_DB_GUARD: z.string().optional(),
+});
+
+const parsed = schema.safeParse(process.env);
+
+if (!parsed.success) {
+  const mensaje = parsed.error.issues
+    .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+    .join("; ");
+  throw new Error(`Variables de entorno inválidas — ${mensaje}`);
+}
+
+export const env = parsed.data;
