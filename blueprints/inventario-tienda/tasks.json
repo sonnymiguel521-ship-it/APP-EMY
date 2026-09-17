@@ -1,0 +1,395 @@
+[
+  {
+    "id": "E1-T1",
+    "title": "Cliente de base de datos, env y /api/health",
+    "epic": "01-fundacion",
+    "dependencies": [],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `pnpm install --frozen-lockfile` runs desde la raíz THE SYSTEM SHALL exit 0 sin modificar `pnpm-lock.yaml`.",
+      "WHEN `pnpm typecheck` y `pnpm lint` run THE SYSTEM SHALL exit 0 en ambos, sin errores ni advertencias.",
+      "WHEN se hace GET a `/api/health` contra el servidor construido THE SYSTEM SHALL responder 200 con un cuerpo que contiene `\"ok\":true`, tras ejecutar una consulta real contra Neon.",
+      "WHEN falta `DATABASE_URL` al importar `src/lib/env.ts` THE SYSTEM SHALL lanzar un error cuyo mensaje contiene `DATABASE_URL`, en lugar de fallar más tarde en la primera consulta.",
+      "WHEN `pnpm test tests/api/health.test.ts` runs THE SYSTEM SHALL exit 0 con 0 pruebas fallidas y 0 omitidas."
+    ],
+    "verify": [
+      "pnpm install --frozen-lockfile",
+      "pnpm typecheck",
+      "pnpm lint",
+      "pnpm test tests/api/health.test.ts",
+      "pnpm build",
+      "pnpm exec next start -p 3000 & SRV=$!; sleep 12; code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/api/health); body=$(curl -s http://localhost:3000/api/health); kill $SRV 2>/dev/null || true; test \"$code\" = 200 && printf '%s' \"$body\" | grep -q '\"ok\":true'"
+    ],
+    "checkpoint": "step-01-scaffold-db",
+    "files": [
+      "src/lib/env.ts",
+      "src/lib/db/index.ts",
+      "drizzle.config.ts",
+      "src/app/api/health/route.ts",
+      "tests/api/health.test.ts"
+    ],
+    "status": "in_progress"
+  },
+  {
+    "id": "E1-T2",
+    "title": "Auth de un solo usuario y proteccion de rutas",
+    "epic": "01-fundacion",
+    "dependencies": ["E1-T1"],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN una petición sin sesión hace GET a `/ventas` THE SYSTEM SHALL responder 307 con una cabecera `Location` que contiene `/login`.",
+      "WHEN una petición sin sesión hace GET a `/login` THE SYSTEM SHALL responder 200.",
+      "WHEN una petición sin sesión hace GET a `/api/health` THE SYSTEM SHALL responder 200, porque el `matcher` de `proxy.ts` excluye esa ruta.",
+      "WHEN falta `BETTER_AUTH_SECRET` al importar `src/lib/auth.ts` THE SYSTEM SHALL lanzar un error cuyo mensaje contiene `BETTER_AUTH_SECRET`, en lugar de servir tráfico con sesiones sin firmar.",
+      "WHEN `src/lib/auth.ts` se inspecciona THE SYSTEM SHALL contener `disableSignUp: true`, de modo que no exista registro público."
+    ],
+    "verify": [
+      "pnpm typecheck",
+      "pnpm lint",
+      "pnpm build",
+      "grep -q \"disableSignUp: true\" src/lib/auth.ts",
+      "pnpm exec next start -p 3000 & SRV=$!; sleep 12; a=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/ventas); loc=$(curl -s -o /dev/null -D - http://localhost:3000/ventas | grep -i '^location:'); b=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/login); c=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/api/health); kill $SRV 2>/dev/null || true; test \"$a\" = 307 && printf '%s' \"$loc\" | grep -q \"/login\" && test \"$b\" = 200 && test \"$c\" = 200",
+      "pnpm test tests/api/health.test.ts"
+    ],
+    "checkpoint": "step-02-auth",
+    "files": [
+      "src/lib/db/auth-schema.ts",
+      "src/lib/auth.ts",
+      "src/app/api/auth/[...all]/route.ts",
+      "src/app/login/page.tsx",
+      "proxy.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E1-T3",
+    "title": "Esquema de dominio, migraciones y semilla",
+    "epic": "01-fundacion",
+    "dependencies": ["E1-T2"],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `pnpm db:migrate` runs contra la base de desarrollo THE SYSTEM SHALL exit 0 y crear todas las tablas que §4 define.",
+      "WHEN se hace `select` sobre cada tabla que §4 define THE SYSTEM SHALL devolver un resultado sin error para todas ellas.",
+      "WHEN se insertan dos filas de `unidad` con el mismo valor de `sku` THE SYSTEM SHALL rechazar la segunda con una violación de unicidad de la base de datos y dejar exactamente una fila con ese `sku`.",
+      "WHEN `pnpm db:seed` runs dos veces seguidas THE SYSTEM SHALL exit 0 las dos veces y dejar el mismo número de filas en `articulo`, `variante`, `unidad` y `cliente`.",
+      "WHEN la semilla termina THE SYSTEM SHALL dejar dos filas de `unidad` con la misma `variante_id` y valores de `sku` distintos."
+    ],
+    "verify": [
+      "pnpm db:generate",
+      "pnpm db:migrate",
+      "pnpm db:migrate:test",
+      "pnpm db:seed",
+      "pnpm db:seed",
+      "pnpm test tests/db/schema.test.ts"
+    ],
+    "checkpoint": "step-03-esquema",
+    "files": [
+      "src/lib/db/schema.ts",
+      "src/lib/db/index.ts",
+      "drizzle/**",
+      "scripts/seed.ts",
+      "tests/db/schema.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E1-T4",
+    "title": "CRUD de Articulo y Variante",
+    "epic": "01-fundacion",
+    "dependencies": ["E1-T3"],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `crearArticulo` recibe `nombre` vacío THE SYSTEM SHALL devolver `ok: false` con `error.code` igual a `VALIDATION_ERROR` y no insertar ninguna fila.",
+      "WHEN `crearVariante` recibe una combinación de `articulo_id`, `color` y `talla` que ya existe THE SYSTEM SHALL devolver `error.code` igual a `VALIDATION_ERROR` y dejar el número de variantes sin cambios.",
+      "WHEN `desactivarArticulo` se ejecuta sobre un artículo con variantes THE SYSTEM SHALL poner `activo` en `false` y mantener la fila y sus variantes consultables.",
+      "WHEN `listarArticulos` recibe `perPage` igual a 2 sobre un catálogo de al menos 3 artículos THE SYSTEM SHALL devolver exactamente 2 filas.",
+      "WHEN cualquier función de `src/server/articulos.ts` se invoca sin sesión THE SYSTEM SHALL devolver `error.code` igual a `UNAUTHENTICATED` sin tocar la base de datos."
+    ],
+    "verify": [
+      "pnpm db:migrate:test",
+      "pnpm test tests/server/articulos.test.ts",
+      "pnpm typecheck",
+      "pnpm lint",
+      "pnpm build",
+      "pnpm test tests/db/schema.test.ts"
+    ],
+    "checkpoint": "step-04-articulos",
+    "files": [
+      "src/server/articulos.ts",
+      "src/app/(app)/articulos/actions.ts",
+      "src/app/(app)/articulos/page.tsx",
+      "src/app/(app)/articulos/[id]/page.tsx",
+      "tests/server/articulos.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E1-T5",
+    "title": "CRUD de Unidad y generacion de SKU",
+    "epic": "01-fundacion",
+    "dependencies": ["E1-T4"],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN se crean dos unidades con la misma `variante_id` y sin enviar `sku` THE SYSTEM SHALL insertar dos filas con valores de `sku` distintos y `sku_auto_generado` en `true`.",
+      "WHEN `crearUnidad` recibe un `sku` manual que ya existe THE SYSTEM SHALL devolver `error.code` igual a `SKU_DUPLICADO` y dejar exactamente una fila con ese `sku`.",
+      "WHEN `crearUnidad` recibe un `sku` manual nuevo THE SYSTEM SHALL insertar la fila con `sku_auto_generado` en `false`.",
+      "WHEN se crean 50 unidades seguidas sin enviar `sku` THE SYSTEM SHALL producir 50 valores de `sku` distintos entre sí.",
+      "WHEN `cambiarEstadoUnidad` intenta poner en `disponible` una unidad que ya pertenece a una venta THE SYSTEM SHALL devolver `error.code` igual a `UNIDAD_NO_DISPONIBLE` y no modificar la fila."
+    ],
+    "verify": [
+      "pnpm db:migrate:test",
+      "pnpm test tests/server/unidades.test.ts",
+      "pnpm typecheck",
+      "pnpm lint",
+      "pnpm build",
+      "pnpm test tests/server/articulos.test.ts"
+    ],
+    "checkpoint": "step-05-unidades",
+    "files": [
+      "src/server/unidades.ts",
+      "src/app/(app)/unidades/actions.ts",
+      "src/app/(app)/unidades/page.tsx",
+      "tests/server/unidades.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E1-T6",
+    "title": "CRUD de Cliente con bloqueo de borrado",
+    "epic": "01-fundacion",
+    "dependencies": ["E1-T3"],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `crearCliente` recibe `telefono` vacío THE SYSTEM SHALL devolver `error.code` igual a `VALIDATION_ERROR` y no insertar ninguna fila.",
+      "WHEN `eliminarCliente` se ejecuta sobre un cliente que tiene al menos una venta asociada THE SYSTEM SHALL devolver `error.code` igual a `CLIENTE_CON_VENTAS` y dejar la fila del cliente intacta.",
+      "WHEN `eliminarCliente` se ejecuta sobre un cliente sin ventas y sin deuda THE SYSTEM SHALL borrar la fila y hacer que `obtenerCliente` devuelva `NOT_FOUND`.",
+      "WHEN `desactivarCliente` se ejecuta THE SYSTEM SHALL poner `activo` en `false`, excluir al cliente del listado de activos y mantenerlo accesible por id.",
+      "WHEN `saldoDeCliente` se consulta para un cliente sin ventas THE SYSTEM SHALL devolver 0 centavos y no `null`."
+    ],
+    "verify": [
+      "pnpm db:migrate:test",
+      "pnpm test tests/server/clientes.test.ts",
+      "pnpm typecheck",
+      "pnpm lint",
+      "pnpm build",
+      "pnpm test tests/server/unidades.test.ts"
+    ],
+    "checkpoint": "step-06-clientes",
+    "files": [
+      "src/server/clientes.ts",
+      "src/app/(app)/clientes/actions.ts",
+      "src/app/(app)/clientes/page.tsx",
+      "tests/server/clientes.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E2-T1",
+    "title": "Creacion atomica de Venta",
+    "epic": "02-ventas-y-entrega",
+    "dependencies": ["E1-T5", "E1-T6"],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `crearVenta` recibe dos unidades disponibles THE SYSTEM SHALL crear una venta cuyo `monto_total_centavos` es la suma de los precios enviados y dejar ambas unidades en estado `vendida`.",
+      "WHEN `crearVenta` recibe una unidad disponible y otra que ya está `vendida` THE SYSTEM SHALL devolver `error.code` igual a `UNIDAD_NO_DISPONIBLE`, no crear ninguna venta y dejar la unidad disponible todavía en estado `disponible`.",
+      "WHEN `crearVenta` se ejecuta sin `clienteId` THE SYSTEM SHALL crear la venta con `cliente_id` nulo y estado `pendiente`.",
+      "WHEN se intenta incluir la misma unidad en una segunda venta THE SYSTEM SHALL rechazar la operación y dejar una sola fila de `venta_unidad` para esa unidad.",
+      "WHEN `crearVenta` recibe una lista de líneas vacía THE SYSTEM SHALL devolver `error.code` igual a `VALIDATION_ERROR` y no escribir nada."
+    ],
+    "verify": [
+      "pnpm db:migrate:test",
+      "pnpm test tests/server/ventas.test.ts",
+      "pnpm typecheck",
+      "pnpm lint",
+      "pnpm build",
+      "pnpm test tests/server/clientes.test.ts"
+    ],
+    "checkpoint": "step-07-ventas",
+    "files": [
+      "src/server/ventas.ts",
+      "src/app/(app)/ventas/actions.ts",
+      "src/app/(app)/ventas/nueva/page.tsx",
+      "src/app/(app)/ventas/page.tsx",
+      "tests/server/ventas.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E2-T2",
+    "title": "Registro de Pago y recalculo de estado",
+    "epic": "02-ventas-y-entrega",
+    "dependencies": ["E2-T1"],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN se registra un pago menor que el total de la venta THE SYSTEM SHALL dejar la venta en estado `parcial` y devolver el saldo restante en centavos.",
+      "WHEN la suma de pagos alcanza el total de la venta THE SYSTEM SHALL dejar la venta en estado `pagada` y devolver saldo 0.",
+      "WHEN se registra un pago mayor que el saldo pendiente THE SYSTEM SHALL devolver `error.code` igual a `PAGO_EXCEDE_SALDO`, no insertar ninguna fila en `pago` y dejar el estado de la venta sin cambios.",
+      "WHEN se registra un pago con `montoCentavos` menor o igual a 0 THE SYSTEM SHALL devolver `error.code` igual a `VALIDATION_ERROR` y no escribir nada.",
+      "WHEN se registra un pago sobre una venta inexistente THE SYSTEM SHALL devolver `error.code` igual a `NOT_FOUND`."
+    ],
+    "verify": [
+      "pnpm db:migrate:test",
+      "pnpm test tests/server/pagos.test.ts",
+      "pnpm typecheck",
+      "pnpm lint",
+      "pnpm build",
+      "pnpm test tests/server/ventas.test.ts"
+    ],
+    "checkpoint": "step-08-pagos",
+    "files": [
+      "src/server/pagos.ts",
+      "src/app/(app)/ventas/[id]/page.tsx",
+      "src/app/(app)/ventas/[id]/actions.ts",
+      "tests/server/pagos.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E2-T3",
+    "title": "Perfil de Cliente con saldo",
+    "epic": "02-ventas-y-entrega",
+    "dependencies": ["E2-T2"],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN un cliente tiene dos ventas y un pago parcial THE SYSTEM SHALL devolver un saldo igual a la suma de los totales menos la suma de los pagos, en centavos enteros.",
+      "WHEN un cliente no tiene ventas THE SYSTEM SHALL devolver historial de compras vacío, historial de pagos vacío y saldo 0.",
+      "WHEN se consulta el perfil de un id inexistente THE SYSTEM SHALL devolver `error.code` igual a `NOT_FOUND`.",
+      "WHEN una venta del cliente está totalmente pagada THE SYSTEM SHALL mostrarla con estado `pagada` y no sumar nada al saldo.",
+      "WHEN el perfil incluye una venta THE SYSTEM SHALL listar el `sku` de cada unidad vendida en esa venta."
+    ],
+    "verify": [
+      "pnpm db:migrate:test",
+      "pnpm test tests/server/clientes-perfil.test.ts",
+      "pnpm typecheck",
+      "pnpm lint",
+      "pnpm build",
+      "pnpm test tests/server/pagos.test.ts"
+    ],
+    "checkpoint": "step-09-perfil-cliente",
+    "files": [
+      "src/server/clientes-perfil.ts",
+      "src/app/(app)/clientes/[id]/page.tsx",
+      "tests/server/clientes-perfil.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E2-T4",
+    "title": "Exportacion CSV del inventario",
+    "epic": "02-ventas-y-entrega",
+    "dependencies": ["E1-T5"],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN `serializarCsv` produce la salida THE SYSTEM SHALL emitir como primera línea exactamente `sku,articulo,categoria,color,talla,estado,precio_base_dop`.",
+      "WHEN el inventario tiene N unidades THE SYSTEM SHALL emitir N líneas de datos además de la cabecera, una por unidad, ordenadas por `sku` ascendente.",
+      "WHEN el nombre de un artículo contiene una coma o una comilla doble THE SYSTEM SHALL entrecomillar ese campo y duplicar la comilla interior.",
+      "WHEN un artículo tiene `precio_base_centavos` igual a 145000 THE SYSTEM SHALL escribir `1450.00` en la columna `precio_base_dop`.",
+      "WHEN se hace GET a `/api/v1/exportaciones/inventario` sin sesión THE SYSTEM SHALL responder 401 con un cuerpo JSON cuyo `error.code` es `UNAUTHENTICATED`."
+    ],
+    "verify": [
+      "pnpm db:migrate:test",
+      "pnpm test tests/server/exportacion-csv.test.ts",
+      "pnpm typecheck",
+      "pnpm lint",
+      "pnpm build",
+      "pnpm test tests/server/clientes-perfil.test.ts"
+    ],
+    "checkpoint": "step-10-export-csv",
+    "files": [
+      "src/server/exportacion-csv.ts",
+      "src/app/api/v1/exportaciones/inventario/route.ts",
+      "tests/server/exportacion-csv.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E2-T5",
+    "title": "Recibo de venta en PDF",
+    "epic": "02-ventas-y-entrega",
+    "dependencies": ["E2-T2"],
+    "priority": "p1",
+    "acceptance": [
+      "WHEN se hace GET a `/api/v1/ventas/[id]/recibo` con sesión y una venta existente THE SYSTEM SHALL responder 200 con `Content-Type: application/pdf` y un cuerpo cuyos primeros cinco bytes son `%PDF-`.",
+      "WHEN la venta no existe THE SYSTEM SHALL responder 404 con un cuerpo JSON cuyo `error.code` es `NOT_FOUND`.",
+      "WHEN la petición no tiene sesión THE SYSTEM SHALL responder 401 con un cuerpo JSON cuyo `error.code` es `UNAUTHENTICATED`.",
+      "WHEN la venta no tiene cliente asociado THE SYSTEM SHALL generar el PDF igualmente, sin lanzar, identificando la operación como contado."
+    ],
+    "verify": [
+      "pnpm db:migrate:test",
+      "pnpm test tests/api/recibo.test.ts",
+      "pnpm typecheck",
+      "pnpm lint",
+      "pnpm build",
+      "pnpm test tests/server/exportacion-csv.test.ts"
+    ],
+    "checkpoint": "step-11-recibo-pdf",
+    "files": [
+      "src/server/recibo-pdf.tsx",
+      "src/app/api/v1/ventas/[id]/recibo/route.ts",
+      "tests/api/recibo.test.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E2-T6",
+    "title": "Despliegue a Vercel + Neon y CI",
+    "epic": "02-ventas-y-entrega",
+    "dependencies": ["E2-T3", "E2-T4", "E2-T5"],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN `vercel deploy --prod` termina THE SYSTEM SHALL devolver una URL de producción que responde 200 en `/api/health` con un cuerpo que contiene `\"ok\":true`.",
+      "WHEN se hace GET a una ruta protegida de producción sin sesión THE SYSTEM SHALL responder 307 con `Location` conteniendo `/login`.",
+      "WHEN `NODE_ENV` es `production` y falta `BETTER_AUTH_SECRET` THE SYSTEM SHALL fallar al validar el entorno nombrando esa variable, en lugar de arrancar.",
+      "WHEN el workflow de CI corre sobre este commit THE SYSTEM SHALL ejecutar los mismos comandos de la puerta global de §20.1, sin omitir ninguno.",
+      "WHEN `pnpm build` runs en local tras el cambio de `src/lib/env.ts` THE SYSTEM SHALL exit 0 sin exigir las variables de producción."
+    ],
+    "verify": [
+      "pnpm typecheck",
+      "pnpm lint",
+      "pnpm build",
+      "grep -q \"db:migrate:test\" .github/workflows/ci.yml",
+      "code=$(curl -s -o /dev/null -w '%{http_code}' \"$PROD_URL/api/health\"); test \"$code\" = 200",
+      "printf '%s' \"$(curl -s \"$PROD_URL/api/health\")\" | grep -q '\"ok\":true'",
+      "prot=$(curl -s -o /dev/null -w '%{http_code}' \"$PROD_URL/ventas\"); test \"$prot\" = 307",
+      "pnpm test tests/api/recibo.test.ts"
+    ],
+    "checkpoint": "step-12-deploy",
+    "files": [
+      ".env.example",
+      "src/lib/env.ts",
+      ".github/workflows/ci.yml",
+      "next.config.ts"
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "E2-T7",
+    "title": "Suite E2E del flujo critico y accesibilidad",
+    "epic": "02-ventas-y-entrega",
+    "dependencies": ["E2-T6"],
+    "priority": "p0",
+    "acceptance": [
+      "WHEN la suite E2E crea dos unidades de la misma variante THE SYSTEM SHALL mostrar dos filas con SKU distintos en `/unidades`.",
+      "WHEN la suite registra una venta con esas dos unidades THE SYSTEM SHALL dejar ambas con estado `vendida` y la venta en estado `pendiente`.",
+      "WHEN la suite registra un pago parcial sobre esa venta THE SYSTEM SHALL mostrar la venta en estado `parcial` y el perfil del cliente con un saldo igual al total menos el pago.",
+      "WHEN la suite intenta registrar un pago mayor que el saldo THE SYSTEM SHALL mostrar el mensaje de error de `PAGO_EXCEDE_SALDO` y dejar el saldo sin cambios.",
+      "WHEN `pnpm test:e2e tests/e2e/a11y.spec.ts` runs THE SYSTEM SHALL exit 0 con 0 pruebas fallidas."
+    ],
+    "verify": [
+      "pnpm db:reset",
+      "pnpm db:seed",
+      "pnpm test:e2e",
+      "pnpm test:e2e tests/e2e/a11y.spec.ts",
+      "pnpm typecheck",
+      "pnpm db:migrate:test && pnpm test"
+    ],
+    "checkpoint": "step-13-e2e",
+    "files": [
+      "tests/e2e/auth.setup.ts",
+      "tests/e2e/flujo-critico.spec.ts",
+      "tests/e2e/a11y.spec.ts",
+      "scripts/reset-db.ts"
+    ],
+    "status": "pending"
+  }
+]
