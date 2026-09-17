@@ -73,7 +73,7 @@ export function FormularioVenta({
   return (
     <div className="flex flex-col gap-4">
       {error && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-destructive">
           {error}
         </p>
       )}
@@ -84,7 +84,7 @@ export function FormularioVenta({
           id="clienteId"
           value={clienteId}
           onChange={(evento) => setClienteId(evento.target.value)}
-          className="border px-2 py-1 rounded"
+          className="rounded-[var(--radius-input)] border border-border-strong bg-background px-3 py-2 text-text"
         >
           <option value="">Contado</option>
           {clientes.map((c) => (
@@ -132,7 +132,7 @@ export function FormularioVenta({
                         [u.id]: Number(evento.target.value),
                       }))
                     }
-                    className="border px-2 py-1 rounded w-28"
+                    className="w-28 rounded-[var(--radius-input)] border border-border-strong bg-background px-3 py-2 text-text"
                   />
                   <span className="ml-2 text-sm">({formatearDop(precios[u.id] ?? 0)})</span>
                 </td>
@@ -146,7 +146,7 @@ export function FormularioVenta({
         type="button"
         onClick={confirmarVenta}
         disabled={pendiente}
-        className="border rounded px-3 py-2 self-start"
+        className="self-start rounded-[var(--radius-input)] bg-primary px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
       >
         {pendiente ? "Creando..." : "Crear venta"}
       </button>

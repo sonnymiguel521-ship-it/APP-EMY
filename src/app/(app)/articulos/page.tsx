@@ -18,7 +18,7 @@ export default async function PaginaArticulos({ searchParams }: PaginaArticulosP
       <h1 className="text-2xl font-semibold">Artículos</h1>
 
       {!resultado.ok && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-destructive">
           {resultado.error.mensaje}
         </p>
       )}

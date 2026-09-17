@@ -36,7 +36,7 @@ export default async function PaginaUnidades({ searchParams }: PaginaUnidadesPro
       </nav>
 
       {!resultado.ok && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-destructive">
           {resultado.error.mensaje}
         </p>
       )}
@@ -62,14 +62,20 @@ export default async function PaginaUnidades({ searchParams }: PaginaUnidadesPro
                 <td>
                   {item.estado === "disponible" && (
                     <form action={cambiarEstadoUnidadAction.bind(null, item.id, "reservada")}>
-                      <button type="submit" className="border rounded px-2 py-1 text-sm">
+                      <button
+                        type="submit"
+                        className="rounded-[var(--radius-input)] border border-border-strong px-3 py-1 text-sm font-medium text-text hover:bg-surface"
+                      >
                         Reservar
                       </button>
                     </form>
                   )}
                   {item.estado === "reservada" && (
                     <form action={cambiarEstadoUnidadAction.bind(null, item.id, "disponible")}>
-                      <button type="submit" className="border rounded px-2 py-1 text-sm">
+                      <button
+                        type="submit"
+                        className="rounded-[var(--radius-input)] border border-border-strong px-3 py-1 text-sm font-medium text-text hover:bg-surface"
+                      >
                         Liberar
                       </button>
                     </form>

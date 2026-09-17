@@ -24,19 +24,19 @@ export default async function PaginaLogin({ searchParams }: PaginaLoginProps) {
   const { error } = await searchParams;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-white p-4">
-      <div className="flex w-full max-w-sm flex-col gap-4 rounded-lg border border-slate-300 p-8">
-        <h1 className="text-2xl font-semibold text-slate-900">Iniciar sesión</h1>
+    <main className="flex min-h-screen items-center justify-center bg-background p-4">
+      <div className="flex w-full max-w-sm flex-col gap-4 rounded-[var(--radius-card)] border border-border bg-surface p-8">
+        <h1 className="text-2xl font-semibold text-text">Iniciar sesión</h1>
 
         {error && (
-          <p role="alert" className="text-sm text-red-700">
+          <p role="alert" className="text-sm text-destructive">
             Correo o contraseña incorrectos.
           </p>
         )}
 
         <form action={iniciarSesion} className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
-            <label htmlFor="email" className="text-sm font-medium text-slate-700">
+            <label htmlFor="email" className="text-sm font-medium text-text-muted">
               Correo
             </label>
             <input
@@ -45,12 +45,12 @@ export default async function PaginaLogin({ searchParams }: PaginaLoginProps) {
               type="email"
               required
               autoComplete="email"
-              className="rounded border border-slate-400 px-3 py-2 text-slate-900"
+              className="rounded-[var(--radius-input)] border border-border-strong bg-background px-3 py-2 text-text"
             />
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="password" className="text-sm font-medium text-slate-700">
+            <label htmlFor="password" className="text-sm font-medium text-text-muted">
               Contraseña
             </label>
             <input
@@ -59,13 +59,13 @@ export default async function PaginaLogin({ searchParams }: PaginaLoginProps) {
               type="password"
               required
               autoComplete="current-password"
-              className="rounded border border-slate-400 px-3 py-2 text-slate-900"
+              className="rounded-[var(--radius-input)] border border-border-strong bg-background px-3 py-2 text-text"
             />
           </div>
 
           <button
             type="submit"
-            className="mt-2 rounded bg-blue-700 px-3 py-2 font-medium text-white hover:bg-blue-800"
+            className="mt-2 rounded-[var(--radius-input)] bg-primary px-4 py-2 font-medium text-white hover:opacity-90"
           >
             Entrar
           </button>

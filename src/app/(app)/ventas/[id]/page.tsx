@@ -31,7 +31,7 @@ export default async function PaginaVenta({ params }: PaginaVentaProps) {
 
     return (
       <main className="flex flex-col gap-4 p-8">
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-destructive">
           {resultado.error.mensaje}
         </p>
       </main>
@@ -47,7 +47,10 @@ export default async function PaginaVenta({ params }: PaginaVentaProps) {
     <main className="flex flex-col gap-8 p-8">
       <h1 className="text-2xl font-semibold">Venta</h1>
 
-      <a href={`/api/v1/ventas/${id}/recibo`} className="border rounded px-3 py-2 self-start">
+      <a
+        href={`/api/v1/ventas/${id}/recibo`}
+        className="self-start rounded-[var(--radius-input)] bg-primary px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
+      >
         Descargar recibo (PDF)
       </a>
 

@@ -17,14 +17,19 @@ export function FormularioUnidad({ variantes }: { variantes: VarianteOpcion[] })
       <h2 className="text-xl font-semibold">Nueva unidad</h2>
 
       {errorGeneral && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-destructive">
           {errorGeneral.mensaje}
         </p>
       )}
 
       <div className="flex flex-col gap-1">
         <label htmlFor="varianteId">Variante</label>
-        <select id="varianteId" name="varianteId" required className="border px-2 py-1 rounded">
+        <select
+          id="varianteId"
+          name="varianteId"
+          required
+          className="rounded-[var(--radius-input)] border border-border-strong bg-background px-3 py-2 text-text"
+        >
           <option value="">Selecciona una variante</option>
           {variantes.map((v) => (
             <option key={v.id} value={v.id}>
@@ -36,10 +41,18 @@ export function FormularioUnidad({ variantes }: { variantes: VarianteOpcion[] })
 
       <div className="flex flex-col gap-1">
         <label htmlFor="sku">SKU (opcional, se autogenera si se deja vacío)</label>
-        <input id="sku" name="sku" className="border px-2 py-1 rounded font-mono" />
+        <input
+          id="sku"
+          name="sku"
+          className="rounded-[var(--radius-input)] border border-border-strong bg-background px-3 py-2 font-mono text-text"
+        />
       </div>
 
-      <button type="submit" disabled={pendiente} className="border rounded px-3 py-2 self-start">
+      <button
+        type="submit"
+        disabled={pendiente}
+        className="self-start rounded-[var(--radius-input)] bg-primary px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
+      >
         {pendiente ? "Creando..." : "Crear unidad"}
       </button>
     </form>

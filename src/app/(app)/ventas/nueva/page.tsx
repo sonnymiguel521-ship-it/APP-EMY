@@ -15,7 +15,7 @@ export default async function PaginaNuevaVenta() {
       <h1 className="text-2xl font-semibold">Nueva venta</h1>
 
       {!unidadesResultado.ok && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-destructive">
           {unidadesResultado.error.mensaje}
         </p>
       )}

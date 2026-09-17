@@ -13,7 +13,7 @@ export function FormularioVariante({ articuloId }: { articuloId: string }) {
       <h2 className="text-lg font-semibold">Nueva variante</h2>
 
       {errorGeneral && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-destructive">
           {errorGeneral.mensaje}
         </p>
       )}
@@ -22,16 +22,30 @@ export function FormularioVariante({ articuloId }: { articuloId: string }) {
 
       <div className="flex flex-col gap-1">
         <label htmlFor="color">Color</label>
-        <input id="color" name="color" required className="border px-2 py-1 rounded" />
+        <input
+          id="color"
+          name="color"
+          required
+          className="rounded-[var(--radius-input)] border border-border-strong bg-background px-3 py-2 text-text"
+        />
       </div>
 
       <div className="flex flex-col gap-1">
         <label htmlFor="talla">Talla</label>
-        <input id="talla" name="talla" required className="border px-2 py-1 rounded" />
-        {campos.talla && <p className="text-sm text-red-700">{campos.talla}</p>}
+        <input
+          id="talla"
+          name="talla"
+          required
+          className="rounded-[var(--radius-input)] border border-border-strong bg-background px-3 py-2 text-text"
+        />
+        {campos.talla && <p className="text-sm text-destructive">{campos.talla}</p>}
       </div>
 
-      <button type="submit" disabled={pendiente} className="border rounded px-3 py-2 self-start">
+      <button
+        type="submit"
+        disabled={pendiente}
+        className="self-start rounded-[var(--radius-input)] bg-primary px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
+      >
         {pendiente ? "Creando..." : "Crear variante"}
       </button>
     </form>

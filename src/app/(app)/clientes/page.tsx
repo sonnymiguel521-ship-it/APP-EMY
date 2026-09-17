@@ -25,7 +25,7 @@ export default async function PaginaClientes({ searchParams }: PaginaClientesPro
       </nav>
 
       {!resultado.ok && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-destructive">
           {resultado.error.mensaje}
         </p>
       )}
@@ -55,7 +55,10 @@ export default async function PaginaClientes({ searchParams }: PaginaClientesPro
                 <td>
                   {item.activo && (
                     <form action={desactivarClienteAction.bind(null, item.id)}>
-                      <button type="submit" className="border rounded px-2 py-1 text-sm">
+                      <button
+                        type="submit"
+                        className="rounded-[var(--radius-input)] border border-border-strong px-3 py-1 text-sm font-medium text-text hover:bg-surface"
+                      >
                         Desactivar
                       </button>
                     </form>

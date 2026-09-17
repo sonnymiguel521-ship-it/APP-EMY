@@ -19,7 +19,7 @@ export default async function PaginaArticulo({ params }: PaginaArticuloProps) {
 
     return (
       <main className="flex flex-col gap-4 p-8">
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-destructive">
           {resultado.error.mensaje}
         </p>
       </main>
@@ -50,7 +50,10 @@ export default async function PaginaArticulo({ params }: PaginaArticuloProps) {
 
       {resultado.data.activo && (
         <form action={desactivarArticuloAction.bind(null, id)}>
-          <button type="submit" className="border rounded px-3 py-2">
+          <button
+            type="submit"
+            className="rounded-[var(--radius-input)] bg-primary px-4 py-2 font-medium text-white hover:opacity-90"
+          >
             Desactivar artículo
           </button>
         </form>
@@ -60,7 +63,7 @@ export default async function PaginaArticulo({ params }: PaginaArticuloProps) {
         <h2 className="text-xl font-semibold">Variantes</h2>
 
         {!variantesResultado.ok && (
-          <p role="alert" className="text-sm text-red-700">
+          <p role="alert" className="text-sm text-destructive">
             {variantesResultado.error.mensaje}
           </p>
         )}
@@ -85,7 +88,10 @@ export default async function PaginaArticulo({ params }: PaginaArticuloProps) {
                   <td>{v.talla}</td>
                   <td>
                     <form action={eliminarVarianteAction.bind(null, v.id, id)}>
-                      <button type="submit" className="border rounded px-2 py-1 text-sm">
+                      <button
+                        type="submit"
+                        className="rounded-[var(--radius-input)] border border-border-strong px-3 py-1 text-sm font-medium text-text hover:bg-surface"
+                      >
                         Eliminar
                       </button>
                     </form>

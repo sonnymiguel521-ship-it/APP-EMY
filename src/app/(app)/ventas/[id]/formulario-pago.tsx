@@ -31,7 +31,7 @@ export function FormularioPago({ ventaId }: { ventaId: string }) {
       <h2 className="text-lg font-semibold">Registrar pago</h2>
 
       {error && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-destructive">
           {error}
         </p>
       )}
@@ -44,7 +44,7 @@ export function FormularioPago({ ventaId }: { ventaId: string }) {
           min={1}
           value={montoCentavos}
           onChange={(evento) => setMontoCentavos(Number(evento.target.value))}
-          className="border px-2 py-1 rounded"
+          className="rounded-[var(--radius-input)] border border-border-strong bg-background px-3 py-2 text-text"
         />
       </div>
 
@@ -56,7 +56,7 @@ export function FormularioPago({ ventaId }: { ventaId: string }) {
           onChange={(evento) =>
             setMetodo(evento.target.value as "efectivo" | "transferencia" | "tarjeta")
           }
-          className="border px-2 py-1 rounded"
+          className="rounded-[var(--radius-input)] border border-border-strong bg-background px-3 py-2 text-text"
         >
           <option value="efectivo">Efectivo</option>
           <option value="transferencia">Transferencia</option>
@@ -68,7 +68,7 @@ export function FormularioPago({ ventaId }: { ventaId: string }) {
         type="button"
         onClick={confirmarPago}
         disabled={pendiente || montoCentavos <= 0}
-        className="border rounded px-3 py-2 self-start"
+        className="self-start rounded-[var(--radius-input)] bg-primary px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
       >
         {pendiente ? "Registrando..." : "Registrar pago"}
       </button>

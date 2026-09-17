@@ -30,7 +30,7 @@ export default async function PaginaPerfilCliente({ params }: PaginaPerfilClient
 
     return (
       <main className="flex flex-col gap-4 p-8">
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-destructive">
           {resultado.error.mensaje}
         </p>
       </main>

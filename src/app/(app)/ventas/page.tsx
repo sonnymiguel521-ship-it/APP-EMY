@@ -17,12 +17,15 @@ export default async function PaginaVentas() {
     <main className="flex flex-col gap-8 p-8">
       <h1 className="text-2xl font-semibold">Ventas</h1>
 
-      <Link href="/ventas/nueva" className="border rounded px-3 py-2 self-start">
+      <Link
+        href="/ventas/nueva"
+        className="self-start rounded-[var(--radius-input)] bg-primary px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
+      >
         Nueva venta
       </Link>
 
       {!resultado.ok && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-destructive">
           {resultado.error.mensaje}
         </p>
       )}

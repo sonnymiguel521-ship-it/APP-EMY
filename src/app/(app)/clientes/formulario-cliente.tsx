@@ -13,29 +13,47 @@ export function FormularioCliente() {
       <h2 className="text-xl font-semibold">Nuevo cliente</h2>
 
       {errorGeneral && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-destructive">
           {errorGeneral.mensaje}
         </p>
       )}
 
       <div className="flex flex-col gap-1">
         <label htmlFor="nombre">Nombre</label>
-        <input id="nombre" name="nombre" required className="border px-2 py-1 rounded" />
-        {campos.nombre && <p className="text-sm text-red-700">{campos.nombre}</p>}
+        <input
+          id="nombre"
+          name="nombre"
+          required
+          className="rounded-[var(--radius-input)] border border-border-strong bg-background px-3 py-2 text-text"
+        />
+        {campos.nombre && <p className="text-sm text-destructive">{campos.nombre}</p>}
       </div>
 
       <div className="flex flex-col gap-1">
         <label htmlFor="telefono">Teléfono</label>
-        <input id="telefono" name="telefono" required className="border px-2 py-1 rounded" />
-        {campos.telefono && <p className="text-sm text-red-700">{campos.telefono}</p>}
+        <input
+          id="telefono"
+          name="telefono"
+          required
+          className="rounded-[var(--radius-input)] border border-border-strong bg-background px-3 py-2 text-text"
+        />
+        {campos.telefono && <p className="text-sm text-destructive">{campos.telefono}</p>}
       </div>
 
       <div className="flex flex-col gap-1">
         <label htmlFor="direccion">Dirección</label>
-        <input id="direccion" name="direccion" className="border px-2 py-1 rounded" />
+        <input
+          id="direccion"
+          name="direccion"
+          className="rounded-[var(--radius-input)] border border-border-strong bg-background px-3 py-2 text-text"
+        />
       </div>
 
-      <button type="submit" disabled={pendiente} className="border rounded px-3 py-2 self-start">
+      <button
+        type="submit"
+        disabled={pendiente}
+        className="self-start rounded-[var(--radius-input)] bg-primary px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
+      >
         {pendiente ? "Creando..." : "Crear cliente"}
       </button>
     </form>
