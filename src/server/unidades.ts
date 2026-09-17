@@ -177,6 +177,45 @@ export async function listarVariantesParaSelector(): Promise<Resultado<VarianteP
   };
 }
 
+interface UnidadDisponibleParaVenta {
+  id: string;
+  sku: string;
+  etiqueta: string;
+  precioBaseCentavos: number;
+}
+
+export async function listarUnidadesDisponiblesParaVenta(): Promise<
+  Resultado<UnidadDisponibleParaVenta[]>
+> {
+  const sesion = await getSesion();
+  if (!sesion) return ERROR_NO_AUTENTICADO;
+
+  const filas = await db
+    .select({
+      id: unidad.id,
+      sku: unidad.sku,
+      nombreArticulo: articulo.nombre,
+      color: variante.color,
+      talla: variante.talla,
+      precioBaseCentavos: articulo.precioBaseCentavos,
+    })
+    .from(unidad)
+    .innerJoin(variante, eq(unidad.varianteId, variante.id))
+    .innerJoin(articulo, eq(variante.articuloId, articulo.id))
+    .where(eq(unidad.estado, "disponible"))
+    .orderBy(unidad.sku);
+
+  return {
+    ok: true,
+    data: filas.map((fila) => ({
+      id: fila.id,
+      sku: fila.sku,
+      etiqueta: `${fila.nombreArticulo} — ${fila.color}/${fila.talla}`,
+      precioBaseCentavos: fila.precioBaseCentavos,
+    })),
+  };
+}
+
 const cambiarEstadoUnidadSchema = z.object({
   id: z.string().uuid(),
   estado: z.enum(estadoUnidad.enumValues),

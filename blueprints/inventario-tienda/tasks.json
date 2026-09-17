@@ -215,10 +215,11 @@
       "src/server/ventas.ts",
       "src/app/(app)/ventas/actions.ts",
       "src/app/(app)/ventas/nueva/page.tsx",
+      "src/app/(app)/ventas/nueva/formulario-venta.tsx",
       "src/app/(app)/ventas/page.tsx",
       "tests/server/ventas.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E2-T2",
