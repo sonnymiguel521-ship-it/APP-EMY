@@ -28,7 +28,7 @@
       "src/app/api/health/route.ts",
       "tests/api/health.test.ts"
     ],
-    "status": "in_progress"
+    "status": "done"
   },
   {
     "id": "E1-T2",
