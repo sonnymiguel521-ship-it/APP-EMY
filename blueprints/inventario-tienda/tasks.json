@@ -184,9 +184,10 @@
       "src/server/clientes.ts",
       "src/app/(app)/clientes/actions.ts",
       "src/app/(app)/clientes/page.tsx",
+      "src/app/(app)/clientes/formulario-cliente.tsx",
       "tests/server/clientes.test.ts"
     ],
-    "status": "pending"
+    "status": "done"
   },
   {
     "id": "E2-T1",
